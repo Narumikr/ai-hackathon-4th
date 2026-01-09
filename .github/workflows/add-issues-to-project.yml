@@ -1,0 +1,116 @@
+name: Add Issues to AI Hackathon 4th Project
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      project_number:
+        description: 'Project number (e.g., 1 for first project)'
+        required: true
+        default: '1'
+        type: string
+      owner_type:
+        description: 'Project owner type (user or org)'
+        required: true
+        default: 'user'
+        type: choice
+        options:
+          - user
+          - org
+
+jobs:
+  add-new-issue-to-project:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      repository-projects: write
+    steps:
+      - name: Add issue to project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          # プロジェクトURLを適切に設定してください
+          # ユーザープロジェクトの場合: https://github.com/users/Narumikr/projects/1
+          # 組織プロジェクトの場合: https://github.com/orgs/Narumikr/projects/1
+          project-url: https://github.com/users/Narumikr/projects/1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  add-all-issues:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      repository-projects: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get all issues and add to project
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_NUMBER: ${{ github.event.inputs.project_number }}
+          OWNER_TYPE: ${{ github.event.inputs.owner_type }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          echo "Adding all issues to project..."
+          echo "Project number: $PROJECT_NUMBER"
+          echo "Owner type: $OWNER_TYPE"
+          echo "Owner: $OWNER"
+          
+          # Get project ID based on owner type
+          if [ "$OWNER_TYPE" = "org" ]; then
+            PROJECT_ID=$(gh api graphql -f query='
+              query($owner: String!, $number: Int!) {
+                organization(login: $owner) {
+                  projectV2(number: $number) {
+                    id
+                  }
+                }
+              }' -f owner="$OWNER" -F number="$PROJECT_NUMBER" --jq '.data.organization.projectV2.id')
+          else
+            PROJECT_ID=$(gh api graphql -f query='
+              query($owner: String!, $number: Int!) {
+                user(login: $owner) {
+                  projectV2(number: $number) {
+                    id
+                  }
+                }
+              }' -f owner="$OWNER" -F number="$PROJECT_NUMBER" --jq '.data.user.projectV2.id')
+          fi
+          
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "Error: Could not find project. Please check the project number and owner type."
+            exit 1
+          fi
+          
+          echo "Project ID: $PROJECT_ID"
+          
+          # Get all issues (excluding pull requests)
+          ISSUE_IDS=$(gh api repos/${{ github.repository }}/issues --paginate --jq '.[] | select(.pull_request == null) | .node_id')
+          
+          if [ -z "$ISSUE_IDS" ]; then
+            echo "No issues found in the repository."
+            exit 0
+          fi
+          
+          # Add each issue to the project
+          echo "$ISSUE_IDS" | while read -r issue_id; do
+            if [ -z "$issue_id" ]; then
+              continue
+            fi
+            echo "Adding issue with ID: $issue_id"
+            gh api graphql -f query='
+              mutation($project:ID!, $issue:ID!) {
+                addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
+                  item {
+                    id
+                  }
+                }
+              }' -f project="$PROJECT_ID" -f issue="$issue_id" 2>&1 | tee -a /tmp/add_issue.log || {
+              echo "Failed to add issue or issue already in project"
+            }
+          done
+          
+          echo "Finished adding issues to project!"
