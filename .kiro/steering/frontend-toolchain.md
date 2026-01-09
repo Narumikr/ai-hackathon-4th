@@ -6,10 +6,10 @@
 
 | 種類 | ツール | 選定理由 |
 |------|--------|----------|
-| ビルドツール | Vite | 高速なHMRとビルド。モダンフロントエンド開発の標準 |
+| フレームワーク | Next.js 16 | React-based、App Router、静的サイト生成対応 |
 | パッケージ/ライブラリ管理 | pnpm | 高速でディスク効率が良い。npm/yarn互換 |
 | 型チェック | TypeScript (tsc) | 言語標準の型チェッカー |
 | Linter / Formatter / Import sorter | Biome | 高速（Rustベース）。lint/format/importを1ツールで対応でき、依存を最小化できる |
-| テストランナー | Vitest | Viteと統合されており高速。Jest互換API |
+| テストランナー | Vitest | Jest互換API、高速 |
 
 npm / yarn コマンドは使用せず、pnpm を使用すること

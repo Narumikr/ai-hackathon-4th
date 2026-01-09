@@ -633,7 +633,7 @@ Property 14: Reflection pamphlet completeness
 - **最小100回の反復**: 各プロパティテストで十分な入力カバレッジを確保
 
 #### Testing Framework Configuration
-- **Frontend**: Vitest（Vite統合、Jest互換API）
+- **Frontend**: Vitest（Jest互換API、高速）
 - **Backend**: pytest（豊富な機能、Property-based testing対応）
 - **Property Testing Library**: Hypothesis（Python）、fast-check（TypeScript）
 - **E2E Testing**: Playwright Test Agent（AI支援による自動テスト生成・実行）
