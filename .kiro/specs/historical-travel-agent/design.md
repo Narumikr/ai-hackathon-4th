@@ -356,7 +356,7 @@ cd deployment/terraform && terraform apply
 - **API接続**: `http://localhost:8000` (FastAPI dev server)
 - **Hot Module Reload**: ファイル変更時の自動リロード
 - **TypeScript**: リアルタイム型チェック
-- **App Router**: Next.js 13+ App Router使用
+- **App Router**: Next.js 16 App Router使用
 
 #### 2. Photo Upload Interface  
 - **目的**: 旅行後の写真・感想アップロード
