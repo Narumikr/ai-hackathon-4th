@@ -64,4 +64,5 @@
 2. WHEN 画像を分析する THEN THE Historical_Travel_Agent SHALL Geminiのツール機能を使用して画像分析を実行する
 3. WHEN テキスト生成を行う THEN THE Historical_Travel_Agent SHALL Google Cloud Vertex AIを使用してGeminiモデルにアクセスする
 4. WHEN 地図を生成する THEN THE Map_Generator SHALL Google Maps APIを統合する
-5. WHEN システムをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Runまたは適切なGoogle Cloudサービス上で動作する
+5. WHEN バックエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Run上でPython FastAPIアプリケーションとして動作する
+6. WHEN フロントエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Storage + Cloud CDNまたはFirebase Hostingで静的サイトとして配信される

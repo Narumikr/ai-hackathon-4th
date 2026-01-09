@@ -12,10 +12,20 @@
 
 ```mermaid
 graph TB
+    subgraph "Frontend Deployment"
+        CDN[Cloud CDN / Firebase Hosting]
+        StaticFiles[Static Files]
+    end
+    
     subgraph "Frontend (TypeScript/Vite)"
         UI[Web Interface]
         Upload[Image Upload]
         Display[Content Display]
+    end
+    
+    subgraph "Backend Deployment"
+        CloudRun[Google Cloud Run]
+        FastAPI[FastAPI Application]
     end
     
     subgraph "Backend (Python/FastAPI)"
@@ -39,7 +49,10 @@ graph TB
         TempStorage[Temporary Storage]
     end
     
-    UI --> API
+    CDN --> UI
+    UI --> CloudRun
+    CloudRun --> FastAPI
+    FastAPI --> API
     Upload --> FileHandler
     API --> Gemini
     Gemini --> Tools
