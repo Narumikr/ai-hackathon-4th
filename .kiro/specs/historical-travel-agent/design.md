@@ -15,11 +15,11 @@
 ```mermaid
 graph TB
     subgraph "Frontend Deployment"
-        CDN[Cloud CDN / Firebase Hosting]
-        StaticFiles[Static Files]
+        Firebase[Firebase Hosting]
+        StaticFiles[Next.js Static Export]
     end
     
-    subgraph "Frontend (TypeScript/Vite)"
+    subgraph "Frontend (React/Next.js 16/TypeScript)"
         UI[Web Interface]
         Upload[Image Upload]
         Display[Content Display]
@@ -27,7 +27,7 @@ graph TB
     
     subgraph "Backend Deployment"
         CloudRun[Google Cloud Run]
-        FastAPI[FastAPI Application]
+        CloudBuild[Cloud Build - Source Deploy]
     end
     
     subgraph "Backend (Python/FastAPI)"
@@ -51,10 +51,10 @@ graph TB
         TempStorage[Temporary Storage]
     end
     
-    CDN --> UI
+    Firebase --> UI
     UI --> CloudRun
-    CloudRun --> FastAPI
-    FastAPI --> API
+    CloudBuild --> CloudRun
+    CloudRun --> API
     Upload --> FileHandler
     API --> Gemini
     Gemini --> Tools
@@ -73,13 +73,18 @@ graph TB
 graph TB
     subgraph "Local Development Environment"
         subgraph "Frontend Dev Server"
-            ViteDev[Vite Dev Server :5173]
+            NextDev[Next.js Dev Server :3000]
             HMR[Hot Module Reload]
         end
         
         subgraph "Backend Dev Server"
             UvicornDev[Uvicorn Dev Server :8000]
             AutoReload[Auto Reload]
+        end
+        
+        subgraph "Local Services (Docker)"
+            PostgresDB[PostgreSQL :5432]
+            Redis[Redis :6379]
         end
         
         subgraph "Local Storage"
@@ -93,19 +98,252 @@ graph TB
         end
     end
     
-    ViteDev --> UvicornDev
+    NextDev --> UvicornDev
+    UvicornDev --> PostgresDB
+    UvicornDev --> Redis
     UvicornDev --> VertexAI
     UvicornDev --> LocalUploads
     ADC --> VertexAI
 ```
 
+## Project Structure
+
+```
+historical-travel-agent/
+├── README.md
+├── .gitignore
+├── docker-compose.yml          # ローカル開発用（PostgreSQL, Redis）
+├── .env.example               # 環境変数テンプレート
+│
+├── frontend/                  # React/Next.js 16/TypeScript フロントエンド
+│   ├── package.json
+│   ├── pnpm-lock.yaml
+│   ├── next.config.js
+│   ├── tsconfig.json
+│   ├── biome.json            # Biome設定
+│   ├── tailwind.config.js    # Tailwind CSS設定
+│   ├── public/
+│   │   ├── favicon.ico
+│   │   └── images/
+│   ├── src/
+│   │   ├── app/              # Next.js App Router
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── travel/
+│   │   │   │   ├── page.tsx
+│   │   │   │   ├── [id]/
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── new/
+│   │   │   │       └── page.tsx
+│   │   │   ├── reflection/
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx
+│   │   │   └── api/          # Next.js API Routes (プロキシ用)
+│   │   │       └── proxy/
+│   │   ├── components/
+│   │   │   ├── ui/           # 共通UIコンポーネント
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   └── Modal.tsx
+│   │   │   ├── travel/
+│   │   │   │   ├── TravelList.tsx
+│   │   │   │   ├── TravelForm.tsx
+│   │   │   │   └── SpotSelector.tsx
+│   │   │   ├── upload/
+│   │   │   │   ├── ImageUploader.tsx
+│   │   │   │   └── ReflectionForm.tsx
+│   │   │   └── display/
+│   │   │       ├── TravelGuide.tsx
+│   │   │       └── ReflectionPamphlet.tsx
+│   │   ├── lib/
+│   │   │   ├── api.ts
+│   │   │   ├── utils.ts
+│   │   │   └── validations.ts
+│   │   ├── types/
+│   │   │   ├── travel.ts
+│   │   │   ├── guide.ts
+│   │   │   └── reflection.ts
+│   │   ├── hooks/
+│   │   │   ├── useTravel.ts
+│   │   │   └── useUpload.ts
+│   │   └── styles/
+│   │       └── globals.css
+│   ├── tests/               # Vitest テスト
+│   │   ├── __tests__/
+│   │   │   ├── components/
+│   │   │   └── pages/
+│   │   ├── integration/
+│   │   └── e2e/            # Playwright Test Agent
+│   └── .next/              # Next.js ビルド出力
+│
+├── backend/                 # Python/FastAPI バックエンド
+│   ├── pyproject.toml      # uv設定
+│   ├── uv.lock
+│   ├── ruff.toml           # Ruff設定
+│   ├── pyrightconfig.json  # Pyright設定
+│   ├── .env.local          # ローカル環境変数
+│   ├── main.py             # FastAPI エントリーポイント
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── routes/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── travel_plans.py
+│   │   │   │   ├── reflections.py
+│   │   │   │   └── uploads.py
+│   │   │   └── dependencies.py
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   ├── security.py
+│   │   │   └── exceptions.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── gemini_service.py
+│   │   │   ├── content_generator.py
+│   │   │   └── file_handler.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── travel_plan.py
+│   │   │   ├── guide.py
+│   │   │   └── reflection.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       └── helpers.py
+│   ├── tests/              # pytest テスト
+│   │   ├── __init__.py
+│   │   ├── conftest.py
+│   │   ├── unit/
+│   │   │   ├── test_services/
+│   │   │   ├── test_models/
+│   │   │   └── test_utils/
+│   │   ├── integration/
+│   │   │   ├── test_api/
+│   │   │   └── test_gemini/
+│   │   └── property/       # Property-based tests
+│   │       ├── test_travel_properties.py
+│   │       └── test_content_properties.py
+│   ├── uploads/            # ローカル開発用アップロードディレクトリ
+│   └── logs/               # ログファイル
+│
+├── deployment/             # デプロイメント設定
+│   ├── docker/             # Docker設定
+│   │   ├── Dockerfile.backend
+│   │   ├── Dockerfile.frontend
+│   │   └── docker-compose.yml    # ローカル開発用
+│   ├── terraform/          # Terraform Infrastructure as Code
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── versions.tf
+│   │   ├── modules/
+│   │   │   ├── cloud-run/
+│   │   │   │   ├── main.tf
+│   │   │   │   ├── variables.tf
+│   │   │   │   └── outputs.tf
+│   │   │   ├── storage/
+│   │   │   │   ├── main.tf
+│   │   │   │   ├── variables.tf
+│   │   │   │   └── outputs.tf
+│   │   │   └── iam/
+│   │   │       ├── main.tf
+│   │   │       ├── variables.tf
+│   │   │       └── outputs.tf
+│   │   ├── environments/
+│   │   │   ├── dev/
+│   │   │   │   ├── terraform.tfvars
+│   │   │   │   └── backend.tf
+│   │   │   └── prod/
+│   │   │       ├── terraform.tfvars
+│   │   │       └── backend.tf
+│   │   └── .terraform/
+│   ├── cloud-build/        # Google Cloud Build設定
+│   │   ├── backend-build.yaml
+│   │   └── frontend-build.yaml
+│   └── scripts/
+│       ├── deploy-backend.sh
+│       ├── deploy-frontend.sh
+│       ├── terraform-init.sh
+│       └── terraform-deploy.sh
+│
+├── docs/                   # ドキュメント
+│   ├── api/
+│   │   └── openapi.json
+│   ├── development/
+│   │   ├── setup.md
+│   │   └── testing.md
+│   ├── deployment/
+│   │   ├── terraform-setup.md
+│   │   ├── gcp-setup.md
+│   │   └── environment-config.md
+│   └── infrastructure/
+│       ├── architecture.md
+│       └── security.md
+│
+└── .kiro/                  # Kiro設定（既存）
+    ├── specs/
+    │   └── historical-travel-agent/
+    └── steering/
+```
+
+### Directory Structure Rationale
+
+#### Frontend Structure
+- **Component Organization**: 機能別にコンポーネントを整理（TravelPlanning, PhotoUpload, Display）
+- **Type Safety**: TypeScript型定義を`types/`ディレクトリに集約
+- **Service Layer**: API通信とビジネスロジックを分離
+- **Testing**: Unit, Integration, E2E テストを分離
+
+#### Backend Structure
+- **Clean Architecture**: API, Core, Services, Models の層分離
+- **FastAPI Best Practices**: ルーティング、依存性注入、設定管理の分離
+- **Testing Strategy**: Unit, Integration, Property-based テストの分離
+- **Development Support**: ローカル開発用のアップロードディレクトリとログ
+
+#### Deployment Structure
+- **Infrastructure as Code**: Terraform でGCP リソース定義の管理
+- **Environment Management**: dev/prod 環境の分離管理
+- **Module Structure**: 再利用可能なTerraformモジュール
+- **Container Support**: Docker設定（ローカル開発用DB、本番デプロイ用）
+- **Cloud Build**: Google Cloud Buildでコンテナビルド・デプロイ
+- **Automation**: デプロイメントスクリプトの管理
+
+#### Development Workflow
+```bash
+# ローカル開発環境起動（Docker Compose）
+docker-compose up -d  # PostgreSQL, Redis起動
+
+# ローカル開発開始
+cd backend && uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+cd frontend && pnpm dev
+
+# テスト実行
+cd backend && uv run pytest
+cd frontend && pnpm test
+
+# ビルド
+cd frontend && pnpm build
+docker build -f deployment/docker/Dockerfile.backend -t backend .
+docker build -f deployment/docker/Dockerfile.frontend -t frontend .
+
+# インフラ構築
+cd deployment/terraform && terraform init
+cd deployment/terraform && terraform plan
+cd deployment/terraform && terraform apply
+
+# デプロイ
+./deployment/scripts/deploy-backend.sh
+./deployment/scripts/deploy-frontend.sh
+```
+
 ## Components and Interfaces
 
 ### Frontend Components
-
 #### 1. Travel Planning Interface
 - **目的**: 旅行の管理と旅行先・観光スポットの入力受付
-- **技術**: TypeScript + Vite + React/Vue
+- **技術**: React + Next.js 16 + TypeScript
 - **機能**:
   - 旅行一覧表示・選択
   - 新規旅行作成
@@ -114,10 +352,11 @@ graph TB
   - 生成された旅行ガイドの表示
 
 **ローカル開発設定**:
-- **開発サーバー**: `pnpm dev` (Vite dev server on port 5173)
+- **開発サーバー**: `pnpm dev` (Next.js dev server on port 3000)
 - **API接続**: `http://localhost:8000` (FastAPI dev server)
 - **Hot Module Reload**: ファイル変更時の自動リロード
 - **TypeScript**: リアルタイム型チェック
+- **App Router**: Next.js 13+ App Router使用
 
 #### 2. Photo Upload Interface  
 - **目的**: 旅行後の写真・感想アップロード
@@ -141,7 +380,7 @@ POST /api/upload-images        # 画像アップロード
 
 **ローカル開発設定**:
 - **開発サーバー**: `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
-- **CORS設定**: `http://localhost:5173` (Vite dev server) を許可
+- **CORS設定**: `http://localhost:3000` (Next.js dev server) を許可
 - **ファイルアップロード**: `./uploads/` ディレクトリに一時保存
 - **環境変数**: `.env` ファイルでGoogle Cloud認証情報を管理
 

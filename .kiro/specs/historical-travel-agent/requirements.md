@@ -64,8 +64,8 @@
 2. WHEN 画像を分析する THEN THE Historical_Travel_Agent SHALL Geminiのツール機能を使用して画像分析を実行する
 3. WHEN テキスト生成を行う THEN THE Historical_Travel_Agent SHALL Google Cloud Vertex AIを使用してGeminiモデルにアクセスする
 4. WHEN 地図を生成する THEN THE Map_Generator SHALL Google Maps APIを統合する
-5. WHEN バックエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Run上でPython FastAPIアプリケーションとして動作する
-6. WHEN フロントエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Storage + Cloud CDNまたはFirebase Hostingで静的サイトとして配信される
+5. WHEN バックエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud RunでPython FastAPIアプリケーションをソースコードから直接デプロイして動作する
+6. WHEN フロントエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Firebase HostingでNext.jsアプリケーションを静的サイトとして配信される
 
 ### Requirement 5: ローカル開発環境
 
@@ -74,7 +74,7 @@
 #### Acceptance Criteria
 
 1. WHEN ローカル開発を開始する THEN THE バックエンド SHALL uvicorn dev serverでFastAPIアプリケーションを起動する
-2. WHEN ローカル開発を開始する THEN THE フロントエンド SHALL Vite dev serverでTypeScriptアプリケーションを起動する
-3. WHEN ローカル環境でAPI通信する THEN THE システム SHALL CORS設定でローカルフロントエンドからのアクセスを許可する
+2. WHEN ローカル開発を開始する THEN THE フロントエンド SHALL Next.js 16 dev serverでReact + TypeScriptアプリケーションを起動する
+3. WHEN ローカル環境でAPI通信する THEN THE システム SHALL CORS設定でローカルフロントエンド(localhost:3000)からのアクセスを許可する
 4. WHEN ローカル環境でファイルアップロードする THEN THE システム SHALL 一時的なローカルストレージを使用する
 5. WHEN ローカル環境でGoogle Cloud APIを使用する THEN THE システム SHALL サービスアカウントキーまたはApplication Default Credentialsを使用する
