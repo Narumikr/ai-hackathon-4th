@@ -10,6 +10,8 @@
 
 ## Architecture
 
+### Production Architecture
+
 ```mermaid
 graph TB
     subgraph "Frontend Deployment"
@@ -65,6 +67,38 @@ graph TB
     Display --> UI
 ```
 
+### Local Development Architecture
+
+```mermaid
+graph TB
+    subgraph "Local Development Environment"
+        subgraph "Frontend Dev Server"
+            ViteDev[Vite Dev Server :5173]
+            HMR[Hot Module Reload]
+        end
+        
+        subgraph "Backend Dev Server"
+            UvicornDev[Uvicorn Dev Server :8000]
+            AutoReload[Auto Reload]
+        end
+        
+        subgraph "Local Storage"
+            TempFiles[Temporary Files]
+            LocalUploads[Local Upload Directory]
+        end
+        
+        subgraph "Google Cloud APIs"
+            VertexAI[Vertex AI Gemini]
+            ADC[Application Default Credentials]
+        end
+    end
+    
+    ViteDev --> UvicornDev
+    UvicornDev --> VertexAI
+    UvicornDev --> LocalUploads
+    ADC --> VertexAI
+```
+
 ## Components and Interfaces
 
 ### Frontend Components
@@ -78,6 +112,12 @@ graph TB
   - 旅行先入力フォーム
   - 観光スポット選択・追加
   - 生成された旅行ガイドの表示
+
+**ローカル開発設定**:
+- **開発サーバー**: `pnpm dev` (Vite dev server on port 5173)
+- **API接続**: `http://localhost:8000` (FastAPI dev server)
+- **Hot Module Reload**: ファイル変更時の自動リロード
+- **TypeScript**: リアルタイム型チェック
 
 #### 2. Photo Upload Interface  
 - **目的**: 旅行後の写真・感想アップロード
@@ -98,6 +138,12 @@ PUT  /api/travel-plans/{id}     # 旅行計画更新
 POST /api/reflections          # 振り返り作成
 POST /api/upload-images        # 画像アップロード
 ```
+
+**ローカル開発設定**:
+- **開発サーバー**: `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
+- **CORS設定**: `http://localhost:5173` (Vite dev server) を許可
+- **ファイルアップロード**: `./uploads/` ディレクトリに一時保存
+- **環境変数**: `.env` ファイルでGoogle Cloud認証情報を管理
 
 #### 2. Gemini Integration Service
 - **目的**: Vertex AI Geminiとの統合

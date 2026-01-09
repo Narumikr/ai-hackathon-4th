@@ -66,3 +66,15 @@
 4. WHEN 地図を生成する THEN THE Map_Generator SHALL Google Maps APIを統合する
 5. WHEN バックエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Run上でPython FastAPIアプリケーションとして動作する
 6. WHEN フロントエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Google Cloud Storage + Cloud CDNまたはFirebase Hostingで静的サイトとして配信される
+
+### Requirement 5: ローカル開発環境
+
+**User Story:** 開発者として、効率的にローカル環境で開発・テストを行いたいので、適切な開発環境とツールチェーンを提供してほしい。
+
+#### Acceptance Criteria
+
+1. WHEN ローカル開発を開始する THEN THE バックエンド SHALL uvicorn dev serverでFastAPIアプリケーションを起動する
+2. WHEN ローカル開発を開始する THEN THE フロントエンド SHALL Vite dev serverでTypeScriptアプリケーションを起動する
+3. WHEN ローカル環境でAPI通信する THEN THE システム SHALL CORS設定でローカルフロントエンドからのアクセスを許可する
+4. WHEN ローカル環境でファイルアップロードする THEN THE システム SHALL 一時的なローカルストレージを使用する
+5. WHEN ローカル環境でGoogle Cloud APIを使用する THEN THE システム SHALL サービスアカウントキーまたはApplication Default Credentialsを使用する
