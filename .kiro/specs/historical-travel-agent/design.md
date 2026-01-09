@@ -176,7 +176,7 @@ historical-travel-agent/
 │   │   └── e2e/            # Playwright Test Agent
 │   └── .next/              # Next.js ビルド出力
 │
-├── backend/                 # Python/FastAPI バックエンド
+├── backend/                 # Python/FastAPI バックエンド (DDD構造)
 │   ├── pyproject.toml      # uv設定
 │   ├── uv.lock
 │   ├── ruff.toml           # Ruff設定
@@ -185,49 +185,124 @@ historical-travel-agent/
 │   ├── main.py             # FastAPI エントリーポイント
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── api/
+│   │   │
+│   │   ├── domain/         # ドメイン層（ビジネスロジックの中核）
 │   │   │   ├── __init__.py
-│   │   │   ├── routes/
+│   │   │   ├── travel_plan/         # TravelPlan集約
 │   │   │   │   ├── __init__.py
-│   │   │   │   ├── travel_plans.py
-│   │   │   │   ├── reflections.py
-│   │   │   │   └── uploads.py
-│   │   │   └── dependencies.py
-│   │   ├── core/
+│   │   │   │   ├── entity.py        # TravelPlan, TouristSpot エンティティ
+│   │   │   │   ├── value_objects.py # Location, PlanStatus 値オブジェクト
+│   │   │   │   ├── repository.py    # ITravelPlanRepository インターフェース
+│   │   │   │   └── exceptions.py
+│   │   │   ├── travel_guide/        # TravelGuide集約
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── entity.py        # TravelGuide エンティティ
+│   │   │   │   ├── value_objects.py # HistoricalEvent, SpotDetail, Checkpoint
+│   │   │   │   ├── repository.py    # ITravelGuideRepository インターフェース
+│   │   │   │   ├── services.py      # TravelGuideComposer ドメインサービス
+│   │   │   │   └── exceptions.py
+│   │   │   ├── reflection/          # Reflection集約
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── entity.py        # Reflection, Photo エンティティ
+│   │   │   │   ├── value_objects.py # ImageAnalysis, ReflectionPamphlet
+│   │   │   │   ├── repository.py    # IReflectionRepository インターフェース
+│   │   │   │   ├── services.py      # ReflectionAnalyzer ドメインサービス
+│   │   │   │   └── exceptions.py
+│   │   │   └── shared/              # 共通ドメイン要素
+│   │   │       ├── __init__.py
+│   │   │       ├── entity.py        # 基底Entity クラス
+│   │   │       ├── value_object.py  # 基底ValueObject クラス
+│   │   │       └── events.py        # ドメインイベント
+│   │   │
+│   │   ├── application/    # アプリケーション層（ユースケース）
 │   │   │   ├── __init__.py
-│   │   │   ├── config.py
-│   │   │   ├── security.py
-│   │   │   └── exceptions.py
-│   │   ├── services/
+│   │   │   ├── use_cases/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── create_travel_plan.py      # 旅行計画作成
+│   │   │   │   ├── generate_travel_guide.py   # 旅行ガイド生成
+│   │   │   │   ├── analyze_photos.py          # 写真分析
+│   │   │   │   ├── generate_reflection.py     # 振り返り生成
+│   │   │   │   └── get_travel_plan.py         # 旅行計画取得
+│   │   │   ├── dto/                 # データ転送オブジェクト
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── travel_plan_dto.py
+│   │   │   │   ├── travel_guide_dto.py
+│   │   │   │   └── reflection_dto.py
+│   │   │   └── ports/               # アプリケーション層のインターフェース
+│   │   │       ├── __init__.py
+│   │   │       ├── ai_service.py            # IAIService インターフェース
+│   │   │       ├── search_service.py        # ISearchService インターフェース
+│   │   │       └── storage_service.py       # IStorageService インターフェース
+│   │   │
+│   │   ├── infrastructure/ # インフラ層（外部システム連携）
 │   │   │   ├── __init__.py
-│   │   │   ├── gemini_service.py
-│   │   │   ├── content_generator.py
-│   │   │   └── file_handler.py
-│   │   ├── models/
-│   │   │   ├── __init__.py
-│   │   │   ├── travel_plan.py
-│   │   │   ├── guide.py
-│   │   │   └── reflection.py
-│   │   └── utils/
+│   │   │   ├── repositories/        # リポジトリ実装
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── travel_plan_repository.py
+│   │   │   │   ├── travel_guide_repository.py
+│   │   │   │   └── reflection_repository.py
+│   │   │   ├── ai/                  # AI統合
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── gemini_client.py         # Gemini統合
+│   │   │   │   └── adapters.py              # AIサービスアダプタ
+│   │   │   ├── search/              # 検索統合
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── google_search_client.py
+│   │   │   ├── maps/                # 地図統合
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── google_maps_client.py
+│   │   │   ├── storage/             # ストレージ
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── local_storage.py         # ローカル開発用
+│   │   │   │   └── cloud_storage.py         # 本番用
+│   │   │   └── persistence/         # データ永続化
+│   │   │       ├── __init__.py
+│   │   │       ├── models.py                # SQLAlchemyモデル
+│   │   │       └── database.py              # DB接続
+│   │   │
+│   │   └── interfaces/     # インターフェース層（API）
 │   │       ├── __init__.py
-│   │       └── helpers.py
+│   │       ├── api/                 # REST API
+│   │       │   ├── __init__.py
+│   │       │   ├── v1/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── travel_plans.py
+│   │       │   │   ├── travel_guides.py
+│   │       │   │   ├── reflections.py
+│   │       │   │   └── uploads.py
+│   │       │   └── dependencies.py
+│   │       ├── schemas/             # Pydanticスキーマ（リクエスト/レスポンス）
+│   │       │   ├── __init__.py
+│   │       │   ├── travel_plan.py
+│   │       │   ├── travel_guide.py
+│   │       │   └── reflection.py
+│   │       └── middleware/
+│   │           ├── __init__.py
+│   │           ├── cors.py
+│   │           └── error_handler.py
+│   │
+│   ├── config/             # 設定
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   └── dependencies.py
+│   │
 │   ├── tests/              # pytest テスト
 │   │   ├── __init__.py
 │   │   ├── conftest.py
 │   │   ├── unit/
-│   │   │   ├── test_services/
-│   │   │   ├── test_models/
-│   │   │   └── test_utils/
-│   │   ├── integration/
+│   │   │   ├── domain/              # ドメインロジックのテスト
+│   │   │   ├── application/         # ユースケースのテスト
+│   │   │   └── infrastructure/      # インフラのテスト
+│   │   ├── integration/             # 統合テスト
 │   │   │   ├── test_api/
-│   │   │   └── test_gemini/
-│   │   └── property/       # Property-based tests
+│   │   │   └── test_use_cases/
+│   │   └── property/                # Property-based tests
 │   │       ├── test_travel_properties.py
 │   │       └── test_content_properties.py
 │   ├── uploads/            # ローカル開発用アップロードディレクトリ
 │   └── logs/               # ログファイル
 │
-├── deployment/             # デプロイメント設定
+├── infrastructure/             # インフラストラクチャ設定
 │   ├── docker/             # Docker設定
 │   │   ├── Dockerfile.backend
 │   │   └── docker-compose.yml    # ローカル開発用
@@ -295,10 +370,13 @@ historical-travel-agent/
 - **Testing**: Unit, Integration, E2E テストを分離
 
 #### Backend Structure
-- **Clean Architecture**: API, Core, Services, Models の層分離
-- **FastAPI Best Practices**: ルーティング、依存性注入、設定管理の分離
-- **Testing Strategy**: Unit, Integration, Property-based テストの分離
-- **Development Support**: ローカル開発用のアップロードディレクトリとログ
+- **Domain-Driven Design (DDD)**: ドメイン層、アプリケーション層、インフラ層、インターフェース層の4層分離
+- **Aggregates**: TravelPlan, TravelGuide, Reflection の3つの集約でビジネスロジックを整理
+- **Repository Pattern**: ドメイン層でインターフェース定義、インフラ層で実装（依存性逆転）
+- **Use Cases**: アプリケーション層で明確なユースケース境界による責任分離
+- **Value Objects**: 不変な値オブジェクトでドメインモデルの整合性を保証
+- **Domain Services**: TravelGuideComposer, ReflectionAnalyzer などのドメインサービスで複雑なビジネスロジックを表現
+- **Testing Strategy**: ドメイン、アプリケーション、インフラの各層でUnit/Integration/Property-based テスト
 
 #### Deployment Structure
 - **Infrastructure as Code**: Terraform でGCP リソース定義の管理
@@ -365,39 +443,80 @@ cd deployment/terraform && terraform apply
   - 感想・メモ入力フォーム
   - 生成された振り返りパンフレットの表示
 
-### Backend Components
+### Backend Components (DDD Architecture)
 
-#### 1. API Gateway (FastAPI)
+#### 1. ドメイン層 (Domain Layer)
+
+**TravelPlan集約**:
+- `TravelPlan` エンティティ: 旅行計画のルート集約
+- `TouristSpot` エンティティ: 観光スポット
+- `Location` 値オブジェクト: 緯度経度の不変オブジェクト
+- `PlanStatus` 値オブジェクト: 旅行の状態 (planning/completed)
+- `ITravelPlanRepository` インターフェース: リポジトリの抽象化
+
+**TravelGuide集約**:
+- `TravelGuide` エンティティ: 旅行ガイドのルート集約
+- `HistoricalEvent`, `SpotDetail`, `Checkpoint` 値オブジェクト
+- `TravelGuideComposer` ドメインサービス: 年表、地図、見どころを統合してガイドを構成
+- `ITravelGuideRepository` インターフェース
+
+**Reflection集約**:
+- `Reflection` エンティティ: 振り返りのルート集約
+- `Photo` エンティティ: 写真
+- `ImageAnalysis`, `ReflectionPamphlet` 値オブジェクト
+- `ReflectionAnalyzer` ドメインサービス: 写真と旅行前情報を統合して振り返りを生成
+- `IReflectionRepository` インターフェース
+
+#### 2. アプリケーション層 (Application Layer)
+
+**ユースケース**:
+- `CreateTravelPlanUseCase`: 旅行計画作成
+- `GenerateTravelGuideUseCase`: 旅行ガイド生成（歴史情報収集→年表生成→ガイド構成）
+- `AnalyzePhotosUseCase`: 写真分析
+- `GenerateReflectionPamphletUseCase`: 振り返りパンフレット生成
+- `GetTravelPlanUseCase`: 旅行計画取得
+
+**ポート（インターフェース）**:
+- `IAIService`: AI生成サービスの抽象化
+- `ISearchService`: 検索サービスの抽象化
+- `IStorageService`: ストレージサービスの抽象化
+
+#### 3. インフラ層 (Infrastructure Layer)
+
+**リポジトリ実装**:
+- `TravelPlanRepository`: PostgreSQLでの永続化
+- `TravelGuideRepository`: PostgreSQLでの永続化
+- `ReflectionRepository`: PostgreSQLでの永続化
+
+**外部サービス統合**:
+- `GeminiClient`: Vertex AI Gemini統合（Function Calling、マルチモーダル入力）
+- `GoogleSearchClient`: Google Search統合（歴史情報検索）
+- `GoogleMapsClient`: Google Maps統合（地図生成）
+- `LocalStorage` / `CloudStorage`: ファイルストレージ実装
+
+#### 4. インターフェース層 (Interfaces Layer)
+
+**REST API エンドポイント**:
 ```python
-# 主要エンドポイント
-GET  /api/travel-plans           # 旅行一覧取得
-POST /api/travel-plans          # 旅行計画作成
-GET  /api/travel-plans/{id}     # 旅行ガイド取得
-PUT  /api/travel-plans/{id}     # 旅行計画更新
-POST /api/reflections          # 振り返り作成
-POST /api/upload-images        # 画像アップロード
+# 主要エンドポイント (v1 API)
+GET  /api/v1/travel-plans           # 旅行一覧取得
+POST /api/v1/travel-plans          # 旅行計画作成
+GET  /api/v1/travel-plans/{id}     # 旅行計画取得
+PUT  /api/v1/travel-plans/{id}     # 旅行計画更新
+GET  /api/v1/travel-guides/{id}    # 旅行ガイド取得
+POST /api/v1/reflections           # 振り返り作成
+POST /api/v1/upload-images         # 画像アップロード
 ```
+
+**Pydanticスキーマ**:
+- リクエスト/レスポンスのバリデーション
+- DTOとの変換
 
 **ローカル開発設定**:
 - **開発サーバー**: `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
 - **CORS設定**: `http://localhost:3000` (Next.js dev server) を許可
 - **ファイルアップロード**: `./uploads/` ディレクトリに一時保存
 - **環境変数**: `.env` ファイルでGoogle Cloud認証情報を管理
-
-#### 2. Gemini Integration Service
-- **目的**: Vertex AI Geminiとの統合
-- **機能**:
-  - Function Calling による外部ツール連携
-  - マルチモーダル入力処理（テキスト + 画像）
-  - 構造化出力生成
-
-#### 3. Content Generation Engine
-- **目的**: 歴史コンテンツの生成・整理
-- **機能**:
-  - 年表生成
-  - 地図情報統合
-  - 見どころまとめ作成
-  - チェックポイントリスト生成
 
 ### AI Service Integration
 
