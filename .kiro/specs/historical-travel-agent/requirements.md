@@ -65,7 +65,7 @@
 3. WHEN テキスト生成を行う THEN THE Historical_Travel_Agent SHALL AIモデルを使用してテキストを生成する
 4. WHEN 地図を生成する THEN THE Historical_Travel_Agent SHALL 地図APIを統合する
 5. WHEN システムをデプロイする THEN THE Historical_Travel_Agent SHALL クラウドプラットフォーム上で動作する
-
+6. WHEN フロントエンドをデプロイする THEN THE Historical_Travel_Agent SHALL Firebase HostingでNext.jsアプリケーションを静的サイトとして配信する
 ### Requirement 5: ローカル開発環境
 
 **User Story:** 開発者として、効率的にローカル環境で開発・テストを行いたいので、適切な開発環境とツールチェーンを提供してほしい。
