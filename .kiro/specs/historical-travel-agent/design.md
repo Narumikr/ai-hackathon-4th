@@ -324,10 +324,12 @@ cd backend && uv run pytest
 cd frontend && pnpm test
 
 # ビルド
-cd frontend && pnpm build
+cd frontend && pnpm build  # Next.js静的エクスポート用ビルド
 docker build -f deployment/docker/Dockerfile.backend -t backend .
-docker build -f deployment/docker/Dockerfile.frontend -t frontend .
 
+# フロントエンドはFirebase Hostingで静的ホスティングするためDockerイメージは作成しない
+# 静的ファイルのエクスポート（必要に応じて）
+# cd frontend && pnpm export
 # インフラ構築
 cd deployment/terraform && terraform init
 cd deployment/terraform && terraform plan
