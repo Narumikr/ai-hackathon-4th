@@ -169,7 +169,7 @@ historical-travel-agent/
 │   │   │   └── useUpload.ts
 │   │   └── styles/
 │   │       └── globals.css
-│   ├── tests/               # Vitest テスト
+│   ├── tests/               
 │   │   ├── __tests__/
 │   │   │   ├── components/
 │   │   │   └── pages/
