@@ -17,7 +17,7 @@
 
 ## フロントエンド
 
-- UI表示する文言はリテラルではなく、root/constants/*.tsに定義されていること
+- UI表示する文言はリテラルではなく、frontend/src/constants/*.tsに定義されていること
 - コンポーネントは再利用可能な形で設計されていること
 - スタイルはTailwindCSSを用いて一貫性があること
 
@@ -54,6 +54,7 @@
 ### フロントエンド
 - **フレームワーク**: React + Next.js 16 (App Router)
 - **言語**: TypeScript
+- **パッケージマネージャー**: pnpm
 - **Linter/Formatter**: Biome
 - **スタイリング**: Tailwind CSS
 - **ホスティング**: Firebase Hosting
