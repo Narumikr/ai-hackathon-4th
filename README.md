@@ -134,8 +134,13 @@ just install-all
 gcloud auth application-default login
 
 # 環境変数の設定
-cp .env.example .env
-# .envファイルを編集して必要な環境変数を設定
+# バックエンドの環境変数
+cp backend/.env.example backend/.env
+# backend/.envファイルを編集して必要な環境変数を設定
+
+# フロントエンドの環境変数（必要に応じて）
+cp frontend/.env.local.example frontend/.env.local
+# frontend/.env.localファイルを編集して必要な環境変数を設定
 ```
 
 ### ローカル開発

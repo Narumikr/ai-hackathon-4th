@@ -18,7 +18,7 @@ pnpm := "pnpm"
 
 # バックエンド開発サーバー起動（FastAPI）
 dev-backend:
-    cd {{backend_dir}} && {{uv}} run fastapi dev app/main.py --port {{backend_port}}
+    cd {{backend_dir}} && {{uv}} run fastapi dev main.py --port {{backend_port}}
 
 # フロントエンド開発サーバー起動（Next.js）
 dev-frontend:
