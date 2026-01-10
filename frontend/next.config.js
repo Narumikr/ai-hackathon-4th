@@ -11,12 +11,12 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === 'production',
   },
 
-  // 開発時のAPIプロキシ設定
+  // 開発環境でのAPIプロキシ設定（CORS回避）
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/:path*',
+        destination: 'http://localhost:8000/:path*', // /api プレフィックスを除去してプロキシ
       },
     ];
   },
