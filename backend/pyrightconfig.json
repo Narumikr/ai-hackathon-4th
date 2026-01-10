@@ -1,0 +1,11 @@
+{
+  "include": ["app", "tests"],
+  "exclude": ["**/node_modules", "**/__pycache__", ".venv"],
+  "venvPath": ".",
+  "venv": ".venv",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.12",
+  "pythonPlatform": "All"
+}
