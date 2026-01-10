@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "歴史学習特化型旅行AIエージェント - バックエンド"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.115.0",
+    "fastapi[standard]>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "pydantic>=2.9.0",
     "pydantic-settings>=2.6.0",
