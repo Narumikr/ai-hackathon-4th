@@ -84,9 +84,9 @@ format-frontend:
 # 全フォーマット実行
 format-all: format-backend format-frontend
 
-# バックエンド型チェック（ruffで基本的な型チェックを実施）
+# バックエンド型チェック
 typecheck-backend:
-    @echo "型チェックはruffで実施されます（check-quality-backendに含まれています）"
+    cd {{backend_dir}} && {{uv}} run pyright app/
 
 # フロントエンド型チェック
 typecheck-frontend:
@@ -117,7 +117,7 @@ install-all: install-backend install-frontend
 # --- カテゴリF: コード品質一括チェック（CI/CD向け） ---
 
 # バックエンド品質一括チェック
-check-quality-backend: lint-backend format-backend
+check-quality-backend: lint-backend format-backend typecheck-backend
 
 # フロントエンド品質一括チェック
 check-quality-frontend: lint-frontend format-frontend typecheck-frontend

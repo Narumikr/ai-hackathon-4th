@@ -26,6 +26,7 @@ dev = [
     "hypothesis>=6.122.0",
     "httpx>=0.28.0",
     "ruff>=0.8.0",
+    "pyright>=1.1.300",
 ]
 
 [build-system]
@@ -43,4 +44,5 @@ dev = [
     "hypothesis>=6.122.0",
     "httpx>=0.28.0",
     "ruff>=0.8.0",
+    "pyright>=1.1.300",
 ]
