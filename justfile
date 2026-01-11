@@ -41,8 +41,8 @@ dev-all:
 	wait "$frontend_pid"
 	frontend_status=$?
 	if [ "$backend_status" -ne 0 ] || [ "$frontend_status" -ne 0 ]; then
-		echo "One of the dev servers exited with an error (backend: $backend_status, frontend: $frontend_status)."
-		exit 1
+	echo "One of the dev servers exited with an error (backend: $backend_status, frontend: $frontend_status)."
+	exit 1
 	ßfi
 # --- テスト実行 ---
 
