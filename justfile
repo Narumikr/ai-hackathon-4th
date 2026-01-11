@@ -44,7 +44,6 @@ dev-all:
         echo "One of the dev servers exited with an error (backend: $backend_status, frontend: $frontend_status)."
         exit 1
     fi
-
 # --- テスト実行 ---
 
 # バックエンドテスト実行
