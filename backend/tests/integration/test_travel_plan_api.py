@@ -195,3 +195,50 @@ def test_update_travel_plan_not_found(db_session: Session):
 
     # クリーンアップ
     app.dependency_overrides.clear()
+
+
+def test_delete_travel_plan(db_session: Session, sample_travel_plan: TravelPlanModel):
+    """前提条件: テスト用DBセッションとサンプルデータ
+    実行: DELETE /api/v1/travel-plans/{id}
+    検証: ステータスコード204、データが削除されている
+    """
+    # 前提条件: テスト用DBセッションとサンプルデータ
+
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+
+    # 実行: DELETE /api/v1/travel-plans/{id}
+    response = client.delete(f"/api/v1/travel-plans/{sample_travel_plan.id}")
+
+    # 検証: ステータスコード204、データが削除されている
+    assert response.status_code == 204
+    assert db_session.get(TravelPlanModel, sample_travel_plan.id) is None
+
+    # クリーンアップ
+    app.dependency_overrides.clear()
+
+
+def test_delete_travel_plan_not_found(db_session: Session):
+    """前提条件: 存在しないID
+    実行: DELETE /api/v1/travel-plans/{non_existent_id}
+    検証: ステータスコード404
+    """
+    # 前提条件: 存在しないID
+
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+
+    # 実行: DELETE /api/v1/travel-plans/{non_existent_id}
+    response = client.delete("/api/v1/travel-plans/non-existent-id")
+
+    # 検証: ステータスコード404
+    assert response.status_code == 404
+
+    # クリーンアップ
+    app.dependency_overrides.clear()

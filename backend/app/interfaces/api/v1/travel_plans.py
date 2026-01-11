@@ -1,9 +1,10 @@
 """旅行計画APIエンドポイント."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.application.use_cases.create_travel_plan import CreateTravelPlanUseCase
+from app.application.use_cases.delete_travel_plan import DeleteTravelPlanUseCase
 from app.application.use_cases.get_travel_plan import (
     GetTravelPlanUseCase,
     ListTravelPlansUseCase,
@@ -179,3 +180,37 @@ def update_travel_plan(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
+
+
+@router.delete(
+    "/{plan_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="旅行計画を削除",
+)
+def delete_travel_plan(
+    plan_id: str,
+    repository: TravelPlanRepository = Depends(get_repository),  # noqa: B008
+) -> Response:
+    """旅行計画を削除する.
+
+    Args:
+        plan_id: 旅行計画ID
+        repository: TravelPlanRepository
+
+    Returns:
+        Response: 204 No Content
+
+    Raises:
+        HTTPException: 旅行計画が見つからない（404）
+    """
+    use_case = DeleteTravelPlanUseCase(repository)
+
+    try:
+        use_case.execute(plan_id=plan_id)
+    except TravelPlanNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Travel plan not found: {plan_id}",
+        ) from e
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
