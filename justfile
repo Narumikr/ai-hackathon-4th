@@ -81,6 +81,13 @@ format-backend:
 format-frontend:
     cd {{frontend_dir}} && {{pnpm}} format
 
+<<<<<<< HEAD
+# バックエンドフォーマットチェック
+format-check-backend:
+    cd {{backend_dir}} && {{uv}} run ruff format --check app/
+
+=======
+>>>>>>> 37fe65dd4e3eb32becdeb81eef95f3a754cc4f62
 # 全フォーマット実行
 format-all: format-backend format-frontend
 
@@ -124,6 +131,9 @@ check-quality-frontend: lint-frontend format-frontend typecheck-frontend
 
 # 全品質一括チェック
 check-quality: check-quality-backend check-quality-frontend
+
+# コミット前品質チェック（フォーマットはチェックのみ）
+check-quality-commit: lint-backend format-check-backend lint-frontend typecheck-backend typecheck-frontend
 
 # --- クリーンアップ ---
 
