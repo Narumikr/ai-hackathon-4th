@@ -65,4 +65,4 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     """設定のシングルトンインスタンスを取得."""
-    return Settings()
+    return Settings()  # type: ignore[call-arg]
