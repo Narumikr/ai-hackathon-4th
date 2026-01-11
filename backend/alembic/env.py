@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # アプリケーション設定とモデルのインポート
-from app.config.settings import get_settings
+from app.config.settings import get_database_settings
 from app.infrastructure.persistence.database import Base
 
 # モデルをインポート（Alembicがすべてのテーブルを認識できるように）
@@ -21,7 +21,7 @@ from app.infrastructure.persistence.models import (  # noqa: F401
 config = context.config
 
 # 設定からデータベースURLを取得
-settings = get_settings()
+settings = get_database_settings()
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
 # Interpret the config file for Python logging.

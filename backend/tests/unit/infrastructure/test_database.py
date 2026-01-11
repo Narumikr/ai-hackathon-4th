@@ -3,13 +3,13 @@
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
-from app.infrastructure.persistence.database import Base, engine
+from app.infrastructure.persistence.database import Base
 
 
-def test_engine_creation():
+def test_engine_creation(test_engine):
     """エンジンが正しく作成されることを確認する."""
-    assert engine is not None
-    assert str(engine.url).startswith("postgresql://")
+    assert test_engine is not None
+    assert str(test_engine.url).startswith("postgresql://")
 
 
 def test_session_creation(db_session: Session):

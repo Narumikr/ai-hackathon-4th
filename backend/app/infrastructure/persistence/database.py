@@ -5,10 +5,10 @@ from collections.abc import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from app.config.settings import get_settings
+from app.config.settings import get_database_settings
 
 # 設定を取得
-settings = get_settings()
+settings = get_database_settings()
 
 # SQLAlchemyエンジンの作成
 engine = create_engine(
