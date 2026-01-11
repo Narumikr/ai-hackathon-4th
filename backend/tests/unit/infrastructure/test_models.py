@@ -2,6 +2,8 @@
 
 import uuid
 
+import pytest
+
 from sqlalchemy.orm import Session
 
 from app.infrastructure.persistence.models import (
@@ -231,11 +233,10 @@ def test_unique_constraints(
 
     try:
         db_session.commit()
-        assert False, "ユニーク制約違反が検出されませんでした"
+        pytest.fail("ユニーク制約違反が検出されませんでした")
     except IntegrityError:
         # 期待通りの動作
         db_session.rollback()
-        assert True
 
 
 def test_travel_plan_status_update(db_session: Session, sample_travel_plan: TravelPlanModel):
